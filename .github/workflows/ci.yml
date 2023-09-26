@@ -32,19 +32,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install migration tool
-      run: go install github.com/pressly/goose/v3/cmd/goose@latest
-
-    - name: add goose to path
-      run: |
-        export PATH=/usr/local/go/bin:$PATH && goose --version
-        cat ~/.bashrc
-
-    - name: check goose
-      run: goose --version
-
     - name: Run migrations
-      run: goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
+      run: |
+        pwd
+        goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
 
     - name: Set up Go
       uses: actions/setup-go@v4
