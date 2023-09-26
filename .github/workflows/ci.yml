@@ -37,7 +37,7 @@ jobs:
 
     - name: add goose to path
       run: |
-        echo "export PATH="/usr/local/go/bin:$PATH" >> ~/.bashrc"
+        export PATH=/usr/local/go/bin:$PATH && goose --version
         cat ~/.bashrc
 
     - name: check goose
