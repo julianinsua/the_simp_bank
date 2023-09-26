@@ -34,7 +34,7 @@ jobs:
 
     - name: Run migrations
       run: |
-        pwd
+        export PATH=$PATH:/usr/local/go/bin
         goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
 
     - name: Set up Go
