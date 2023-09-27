@@ -35,6 +35,7 @@ jobs:
     - name: Run migrations
       run: |
         curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | sh
+        cd db/migrations
         goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
 
     - name: Set up Go
