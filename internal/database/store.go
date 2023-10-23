@@ -5,25 +5,32 @@ import (
 	"database/sql"
 	"fmt"
 
+	_ "github.com/golang/mock/mockgen/model"
 	"github.com/google/uuid"
 )
 
 // Provides all functions to run individual operations and Transactions
-type Store struct {
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, params TransferTxParams) (result TransferTxResult, err error)
+}
+
+// Provides all functions to run individual operations and Transactions
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
 // Creates a new Store struct
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) *SQLStore {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // Executes a function within a database transaction
-func (st *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
+func (st *SQLStore) execTx(ctx context.Context, fn func(q *Queries) error) error {
 	tx, err := st.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -59,7 +66,7 @@ type TransferTxResult struct {
 
 // Performs all the necessary operations for a transfer from one account to another.
 // It creates a transfer record, adds account entries and updates balances within a single database transaction.
-func (st *Store) TransferTx(ctx context.Context, params TransferTxParams) (result TransferTxResult, err error) {
+func (st *SQLStore) TransferTx(ctx context.Context, params TransferTxParams) (result TransferTxResult, err error) {
 	err = st.execTx(ctx, func(q *Queries) error {
 		// Create the transfer record
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
