@@ -5,9 +5,9 @@ import (
 	"log"
 
 	_ "github.com/golang/mock/mockgen/model"
-	"github.com/julianinsua/the_simp_bank.git/api"
-	"github.com/julianinsua/the_simp_bank.git/internal/database"
-	"github.com/julianinsua/the_simp_bank.git/util"
+	"github.com/julianinsua/the_simp_bank/api"
+	"github.com/julianinsua/the_simp_bank/internal/database"
+	"github.com/julianinsua/the_simp_bank/util"
 	_ "github.com/lib/pq"
 )
 

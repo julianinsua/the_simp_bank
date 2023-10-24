@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/julianinsua/the_simp_bank.git/internal/database"
+	"github.com/julianinsua/the_simp_bank/internal/database"
 )
 
 /* Struct to generate a server*/

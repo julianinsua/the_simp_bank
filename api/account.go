@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/julianinsua/the_simp_bank.git/internal/database"
+	"github.com/julianinsua/the_simp_bank/internal/database"
 )
 
 /*

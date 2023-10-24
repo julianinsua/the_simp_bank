@@ -1,4 +1,4 @@
-module github.com/julianinsua/the_simp_bank.git
+module github.com/julianinsua/the_simp_bank
 
 go 1.21.0
 

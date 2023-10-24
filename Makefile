@@ -19,6 +19,8 @@ sqlc:
 serverrun:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc serverrun
-	
+mock:
+	mockgen --build_flags=--mod=mod -destination db/mock/store.go -package mock_db github.com/julianinsua/the_simp_bank/internal/database Store
 
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc serverrun mock
+	
