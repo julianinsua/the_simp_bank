@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/julianinsua/the_simp_bank.git/util"
+	"github.com/julianinsua/the_simp_bank/util"
 	_ "github.com/lib/pq"
 )
 

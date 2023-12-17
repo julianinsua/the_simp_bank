@@ -2,8 +2,11 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"strings"
+
+	"github.com/julianinsua/the_simp_bank/internal/database"
 )
 
 const (
@@ -35,6 +38,11 @@ func RandomOwner() string {
 	return RandomString(6)
 }
 
+// Returns a random email account using random characters for both the user and the domain. The suffix is ".com" by default.
+func RandomEmail() string {
+	return fmt.Sprintf("%s@%s.com", RandomString(6), RandomString(6))
+}
+
 func RandomMoney() float64 {
 	rndInt, err := RandomInt(100, 1000)
 	if err != nil {
@@ -47,4 +55,12 @@ func RandomCurrency() string {
 	currencies := []string{"USD", "EUR", "CAD"}
 
 	return currencies[rand.Intn(len(currencies))]
+}
+
+func RandomUser() (database.User, string) {
+	return database.User{
+		Username: RandomOwner(),
+		FullName: RandomOwner(),
+		Email:    RandomEmail(),
+	}, RandomString(7)
 }

@@ -4,24 +4,26 @@ import (
 	"context"
 	"testing"
 
-	"github.com/julianinsua/the_simp_bank.git/util"
+	"github.com/julianinsua/the_simp_bank/util"
 	"github.com/stretchr/testify/require"
 )
 
 func TestTransferTx(t *testing.T) {
 	// Initialize Store
 	store := NewStore(testDB)
+	user1 := createRandomUser(t)
+	user2 := createRandomUser(t)
 
 	// Create accounts
 	acc1, err := store.CreateAccount(context.Background(), CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user1.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	})
 	require.NoError(t, err)
 
 	acc2, err := store.CreateAccount(context.Background(), CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user2.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	})
@@ -124,17 +126,19 @@ func TestTransferTx(t *testing.T) {
 func TestTransferTxDeadlock(t *testing.T) {
 	// Initialize Store
 	store := NewStore(testDB)
+	user1 := createRandomUser(t)
+	user2 := createRandomUser(t)
 
 	// Create accounts
 	acc1, err := store.CreateAccount(context.Background(), CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user1.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	})
 	require.NoError(t, err)
 
 	acc2, err := store.CreateAccount(context.Background(), CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user2.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	})

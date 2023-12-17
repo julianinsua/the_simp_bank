@@ -4,13 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/julianinsua/the_simp_bank.git/util"
+	"github.com/julianinsua/the_simp_bank/util"
 	"github.com/stretchr/testify/require"
 )
 
 func TestAccountCreation(t *testing.T) {
+	user := createRandomUser(t)
 	params := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}

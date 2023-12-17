@@ -15,6 +15,7 @@ type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
 	CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAccount(ctx context.Context, id uuid.UUID) error
 	GetAccount(ctx context.Context, id uuid.UUID) (Account, error)
 	GetAccountEntries(ctx context.Context, arg GetAccountEntriesParams) ([]Entry, error)
@@ -22,6 +23,7 @@ type Querier interface {
 	GetAccountsList(ctx context.Context, arg GetAccountsListParams) ([]Account, error)
 	GetEntry(ctx context.Context, id uuid.UUID) (Entry, error)
 	GetTransfer(ctx context.Context, id uuid.UUID) (Transfer, error)
+	GetUser(ctx context.Context, username string) (User, error)
 	UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error)
 }
 
