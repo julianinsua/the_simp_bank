@@ -5,18 +5,26 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/julianinsua/the_simp_bank/internal/database"
+	"github.com/julianinsua/the_simp_bank/token"
+	"github.com/julianinsua/the_simp_bank/util"
+	"github.com/pkg/errors"
 )
 
 /* Struct to generate a server*/
 type Server struct {
-	store  database.Store
-	router *gin.Engine
+	store      database.Store
+	tokenMaker token.PASETOMaker
+	router     *gin.Engine
+	config     util.Config
 }
 
 /* Create a new server struct, add routes andd return the server instance */
-func NewServer(store database.Store) *Server {
-	server := &Server{store: store}
-	router := gin.Default()
+func NewServer(config util.Config, store database.Store) (*Server, error) {
+	tokenMaker, err := token.NewPASETOMaker(config.SymetricKey)
+	if err != nil {
+		return nil, errors.Errorf("couldn't initialize JWT token generator: %v", err)
+	}
+	server := &Server{store: store, tokenMaker: tokenMaker, config: config}
 
 	// Custom validation bindings
 	v, ok := binding.Validator.Engine().(*validator.Validate)
@@ -24,15 +32,30 @@ func NewServer(store database.Store) *Server {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
-	// Routes go here
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts", server.getAccountList)
-	router.GET("/accounts/:id", server.getAccount)
-	router.POST("/transfers", server.createTransfer)
-	router.POST("/users", server.createUser)
+	server.setupRouter()
 
-	server.router = router
-	return server
+	return server, nil
+}
+
+/*
+Includes all the handlers on their specific routes
+*/
+func (srv *Server) setupRouter() {
+	router := gin.Default()
+
+	// Routes go here
+	router.POST("/accounts", srv.createAccount)
+	router.POST("/users/login", srv.loginUser)
+
+	// Authorized routes
+	authRoutes := router.Group("/").Use(authMiddleware(srv.tokenMaker))
+
+	authRoutes.GET("/accounts", srv.getAccountList)
+	authRoutes.GET("/accounts/:id", srv.getAccount)
+	authRoutes.POST("/transfers", srv.createTransfer)
+	authRoutes.POST("/users", srv.createUser)
+
+	srv.router = router
 }
 
 /*

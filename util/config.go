@@ -1,14 +1,20 @@
 package util
 
-import "github.com/spf13/viper"
+import (
+	"time"
+
+	"github.com/spf13/viper"
+)
 
 /*
 Stores the configuration for the application
 */
 type Config struct {
-	DBDriver   string `mapstructure:"DB_DRIVER"`
-	DBSource   string `mapstructure:"DB_SOURCE"`
-	ServerAddr string `mapstructure:"SERVER_ADDRESS"`
+	DBDriver      string        `mapstructure:"DB_DRIVER"`
+	DBSource      string        `mapstructure:"DB_SOURCE"`
+	ServerAddr    string        `mapstructure:"SERVER_ADDRESS"`
+	SymetricKey   string        `mapstructure:"SYMETRIC_KEY"`
+	TokenDuration time.Duration `mapstructure:"TOKEN_DURATION"`
 }
 
 /*

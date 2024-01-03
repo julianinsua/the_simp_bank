@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/julianinsua/the_simp_bank/internal/database"
+	"github.com/julianinsua/the_simp_bank/token"
 	"github.com/lib/pq"
 )
 
@@ -14,7 +16,6 @@ import (
 Account creation body
 */
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"Currency" binding:"required,currency"`
 }
 
@@ -29,8 +30,10 @@ func (s Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.PASETOPayload)
+
 	params := database.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Balance:  0.0,
 		Currency: req.Currency,
 	}
@@ -84,6 +87,12 @@ func (s Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.PASETOPayload)
+	if acc.Owner != authPayload.Username {
+		err := fmt.Errorf("User %s declared in token is unauthorized to access account %s", authPayload.Username, accID.String())
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	ctx.JSON(http.StatusOK, acc)
 }
 
@@ -99,7 +108,6 @@ type GetAccountListRequest struct {
 /*
 Get account list handler
 */
-
 func (s Server) getAccountList(ctx *gin.Context) {
 	var req GetAccountListRequest
 	err := ctx.ShouldBindQuery(&req)
@@ -108,7 +116,9 @@ func (s Server) getAccountList(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.PASETOPayload)
 	accs, err := s.store.GetAccountsList(ctx, database.GetAccountsListParams{
+		Owner:  authPayload.Username,
 		Limit:  req.Size,
 		Offset: (req.Page - 1) * req.Size,
 	})
