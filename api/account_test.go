@@ -103,9 +103,9 @@ func TestGetAccountAPI(t *testing.T) {
 
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
+			tc.setupAuthFunc(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 
-			tc.setupAuthFunc(t, request, server.tokenMaker)
 			//check response in the recorder
 			tc.checkResponse(t, recorder)
 		})

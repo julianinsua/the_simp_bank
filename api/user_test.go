@@ -9,11 +9,13 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	mock_db "github.com/julianinsua/the_simp_bank/db/mock"
 	"github.com/julianinsua/the_simp_bank/internal/database"
+	"github.com/julianinsua/the_simp_bank/token"
 	"github.com/julianinsua/the_simp_bank/util"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
@@ -53,6 +55,7 @@ func TestCreateUser(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuthFunc func(t *testing.T, request *http.Request, maker token.PASETOMaker)
 		buildStubs    func(store *mock_db.MockStore)
 		checkResponse func(recorder *httptest.ResponseRecorder)
 	}{
@@ -65,6 +68,9 @@ func TestCreateUser(t *testing.T) {
 				"email":    user.Email,
 			},
 
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mock_db.MockStore) {
 				usrParams := database.CreateUserParams{
 					Username: user.Username,
@@ -86,6 +92,9 @@ func TestCreateUser(t *testing.T) {
 				"fullName": user.FullName,
 				"email":    user.Email,
 			},
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mock_db.MockStore) {
 				store.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Times(1).Return(database.User{}, sql.ErrConnDone)
 			},
@@ -100,6 +109,9 @@ func TestCreateUser(t *testing.T) {
 				"password": password,
 				"fullName": user.FullName,
 				"email":    user.Email,
+			},
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mock_db.MockStore) {
 				store.
@@ -120,6 +132,9 @@ func TestCreateUser(t *testing.T) {
 				"fullName": user.FullName,
 				"email":    user.Email,
 			},
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mock_db.MockStore) {
 				store.
 					EXPECT().
@@ -138,6 +153,9 @@ func TestCreateUser(t *testing.T) {
 				"fullName": user.FullName,
 				"email":    "invalid-email",
 			},
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mock_db.MockStore) {
 				store.
 					EXPECT().
@@ -155,6 +173,9 @@ func TestCreateUser(t *testing.T) {
 				"password": "123",
 				"fullName": user.FullName,
 				"email":    user.Email,
+			},
+			setupAuthFunc: func(t *testing.T, request *http.Request, maker token.PASETOMaker) {
+				addAuthorization(t, request, maker, authorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mock_db.MockStore) {
 				store.
@@ -187,6 +208,7 @@ func TestCreateUser(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data)) // Turn JSON into bytes
 			require.NoError(t, err)
 
+			tc.setupAuthFunc(t, request, server.tokenMaker)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(recorder)
 		})
