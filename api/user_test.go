@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -50,7 +51,7 @@ func usrChk(args database.CreateUserParams, password string) gomock.Matcher {
 }
 
 func TestCreateUser(t *testing.T) {
-	user, password := util.RandomUser()
+	user, password := randomUser(t)
 
 	testCases := []struct {
 		name          string
@@ -215,6 +216,30 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
-func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user database.User) {
+func randomUser(t *testing.T) (user database.User, password string) {
+	password = util.RandomString(6)
+	hashedPassword, err := util.HashPassword(password)
+	require.NoError(t, err)
 
+	user = database.User{
+		Username:       util.RandomOwner(),
+		HashedPassword: hashedPassword,
+		FullName:       util.RandomOwner(),
+		Email:          util.RandomEmail(),
+	}
+	return
+}
+
+func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user database.User) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotUser database.User
+	err = json.Unmarshal(data, &gotUser)
+
+	require.NoError(t, err)
+	require.Equal(t, user.Username, gotUser.Username)
+	require.Equal(t, user.FullName, gotUser.FullName)
+	require.Equal(t, user.Email, gotUser.Email)
+	require.Empty(t, gotUser.HashedPassword)
 }

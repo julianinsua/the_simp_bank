@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-
-	"github.com/julianinsua/the_simp_bank/internal/database"
 )
 
 const (
@@ -57,10 +55,5 @@ func RandomCurrency() string {
 	return currencies[rand.Intn(len(currencies))]
 }
 
-func RandomUser() (database.User, string) {
-	return database.User{
-		Username: RandomOwner(),
-		FullName: RandomOwner(),
-		Email:    RandomEmail(),
-	}, RandomString(7)
+type User struct {
 }
