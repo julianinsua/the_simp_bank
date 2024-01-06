@@ -29,7 +29,10 @@ func NewServer(config util.Config, store database.Store) (*Server, error) {
 	// Custom validation bindings
 	v, ok := binding.Validator.Engine().(*validator.Validate)
 	if ok {
-		v.RegisterValidation("currency", validCurrency)
+		err = v.RegisterValidation("currency", validCurrency)
+		if err != nil {
+			return nil, errors.Errorf("couldn't register custom currency validator: %v", err)
+		}
 	}
 
 	server.setupRouter()
