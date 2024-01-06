@@ -19,17 +19,17 @@ func main() {
 
 	db, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
-		log.Fatal("unable to create database connection", err)
+		log.Fatal("unable to create database connection: ", err)
 	}
 
 	store := database.NewStore(db)
 	server, err := api.NewServer(config, store)
 	if err != nil {
-		log.Fatal("Failed to create new server", err)
+		log.Fatal("failed to create new server: ", err)
 	}
 
 	err = server.Start(config.ServerAddr)
 	if err != nil {
-		log.Fatal("failed to initialize server", err)
+		log.Fatal("failed to initialize server: ", err)
 	}
 }
