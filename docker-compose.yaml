@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:14.1-alpine
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=simp_bank
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - DB_SOURCE=postgresql://postgres:password@postgres:5432/simp_bank?sslmode=disable
+    depends_on:
+      - postgres
+    entrypoint:
+      ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh", "/app/main"]
+    command: [""]

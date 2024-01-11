@@ -1,16 +1,15 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: ci-test
+name: Run unit tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
   test:
     name: Build
     runs-on: ubuntu-latest
@@ -32,19 +31,19 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Run migrations
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | sh
-        cd db/migrations
-        goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
+      - name: Run migrations
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | sh
+          cd db/migrations
+          goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
-      id: go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+        id: go
 
-    - name: Test
-      run: go test -v -cover ./...
+      - name: Test
+        run: go test -v -cover ./...
