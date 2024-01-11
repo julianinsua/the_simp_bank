@@ -47,16 +47,16 @@ func (srv *Server) setupRouter() {
 	router := gin.Default()
 
 	// Routes go here
-	router.POST("/accounts", srv.createAccount)
+	router.POST("/users", srv.createUser)
 	router.POST("/users/login", srv.loginUser)
 
 	// Authorized routes
 	authRoutes := router.Group("/").Use(authMiddleware(srv.tokenMaker))
 
+	authRoutes.POST("/accounts", srv.createAccount)
 	authRoutes.GET("/accounts", srv.getAccountList)
 	authRoutes.GET("/accounts/:id", srv.getAccount)
 	authRoutes.POST("/transfers", srv.createTransfer)
-	authRoutes.POST("/users", srv.createUser)
 
 	srv.router = router
 }
