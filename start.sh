@@ -2,9 +2,9 @@
 
 set -e
 
-set -o allexport
-source /app/app.env 
-set +o allexport
+set -a
+. /app/app.env 
+set +a
 
 echo "Run migrations"
 /app/goose/bin/goose -dir /app/migration postgres "$DB_SOURCE" up -v
