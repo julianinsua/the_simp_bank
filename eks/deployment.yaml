@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simp-bank-api-deployment
+  labels:
+    app: simp-bank-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simp-bank-api
+  template:
+    metadata:
+      labels:
+        app: simp-bank-api
+    spec:
+      containers:
+        - name: simp-bank-api
+          image: 221584604706.dkr.ecr.eu-north-1.amazonaws.com/simp_bank:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
