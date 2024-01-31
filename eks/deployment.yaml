@@ -17,5 +17,6 @@ spec:
       containers:
         - name: simp-bank-api
           image: 221584604706.dkr.ecr.eu-north-1.amazonaws.com/simp_bank:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
