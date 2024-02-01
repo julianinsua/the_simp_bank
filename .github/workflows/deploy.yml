@@ -40,8 +40,11 @@ jobs:
           REPOSITORY: simp_bank
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t latest .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY
+
+      - name: update kube config
+        run: aws eks update-kubeconfig --name simp_bank --region eu-north-1
 
       - name: Deploy image to Amazon's EKS
         run: |
