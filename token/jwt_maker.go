@@ -24,14 +24,15 @@ func NewJWTMaker(secretKey string) (JWTMaker, error) {
 }
 
 // JSON web token maker. Implements the Maker interface.
-func (mkr *JWTMaker) CreateToken(username string, duration time.Duration) (string, error) {
+func (mkr *JWTMaker) CreateToken(username string, duration time.Duration) (string, *JWTPayload, error) {
 	payload, err := NewJWTPayload(username, duration)
 	if err != nil {
-		return "", fmt.Errorf("unable to cretae token payload")
+		return "", payload, fmt.Errorf("unable to cretae token payload")
 	}
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	return jwtToken.SignedString([]byte(mkr.secretKey))
+	token, err := jwtToken.SignedString([]byte(mkr.secretKey))
+	return token, payload, err
 }
 
 func (j *JWTMaker) VerifyToken(token string) (*JWTPayload, error) {

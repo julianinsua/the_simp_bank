@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/julianinsua/the_simp_bank/internal/database"
 	"github.com/julianinsua/the_simp_bank/util"
 	"github.com/lib/pq"
@@ -79,11 +80,14 @@ type loginUserRequest struct {
 }
 
 type loginUserResponse struct {
-	User  userResponse `json:"user"`
-	Token string       `json:"token"`
+	SessionId             uuid.UUID    `json:"sessionId"`
+	User                  userResponse `json:"user"`
+	Token                 string       `json:"token"`
+	TokenExpiresAt        time.Time    `json:"tokenExpiresAt"`
+	RefreshToken          string       `json:"refreshToken"`
+	RefreshTokenExpiresAt time.Time    `json:"refreshTokenExpiresAt"`
 }
 
-// Implemented this function my way. need to review the video to make sure everything works fine later
 func (srv *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
 	err := ctx.ShouldBindJSON(&req)
@@ -110,16 +114,41 @@ func (srv *Server) loginUser(ctx *gin.Context) {
 	}
 
 	// Create token
-	token, err := srv.tokenMaker.CreateToken(usr.Username, srv.config.TokenDuration)
+	token, tokenPayload, err := srv.tokenMaker.CreateToken(usr.Username, srv.config.TokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
+	// Create refresh token
+	refreshToken, refreshTokenPayload, err := srv.tokenMaker.CreateToken(usr.Username, srv.config.RefreshTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Create session
+	ssn := database.CreateSessionParams{
+		ID:           refreshTokenPayload.ID,
+		Username:     usr.Username,
+		RefreshToken: refreshToken,
+		ClientAgent:  ctx.Request.UserAgent(),
+		ClientIp:     ctx.ClientIP(),
+		ExpiresAt:    refreshTokenPayload.ExpiresAt,
+	}
+	session, err := srv.store.CreateSession(ctx, ssn)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
 	// respond
 	res := loginUserResponse{
-		User:  newUserResponse(usr),
-		Token: token,
+		SessionId:             session.ID,
+		User:                  newUserResponse(usr),
+		Token:                 token,
+		TokenExpiresAt:        tokenPayload.ExpiresAt,
+		RefreshToken:          session.RefreshToken,
+		RefreshTokenExpiresAt: session.ExpiresAt,
 	}
 
 	ctx.JSON(http.StatusOK, res)

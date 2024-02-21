@@ -8,10 +8,10 @@ dropdb:
 	docker exec -it postgres_db dropdb --username=postgres simp_bank
 
 migrateup:
-	goose postgres postgresql://postgres:password@localhost:5432/simp_bank up
+	goose -dir ./db/migrations postgres postgresql://postgres:password@localhost:5432/simp_bank up
 
 migratedown:
-	goose postgres postgresql://postgres:password@localhost:5432/simp_bank down
+	goose -dir ./db/migrations postgres postgresql://postgres:password@localhost:5432/simp_bank down
 
 sqlc:
 	sqlc generate
