@@ -49,6 +49,7 @@ func (srv *Server) setupRouter() {
 	// Routes go here
 	router.POST("/users", srv.createUser)
 	router.POST("/users/login", srv.loginUser)
+	router.POST("/users/refresh", srv.refreshToken)
 
 	// Authorized routes
 	authRoutes := router.Group("/").Use(authMiddleware(srv.tokenMaker))
